@@ -404,5 +404,8 @@
     <ClInclude Include="assets\fonts\WeaponIcons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\memory\iMemory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -236,6 +236,7 @@
     <ClInclude Include="core\engine\classes\Globals.hpp" />
     <ClInclude Include="core\engine\classes\Player.hpp" />
     <ClInclude Include="core\logger\LogHelper.hpp" />
+    <ClInclude Include="core\memory\iMemory.hpp" />
     <ClInclude Include="core\memory\Memory.hpp" />
     <ClInclude Include="core\offsets\Dumper.hpp" />
     <ClInclude Include="core\offsets\Offsets.hpp" />

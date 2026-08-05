@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <math.h>
-#include <Windows.h>
-#include <TlHelp32.h>
 #include <string>
 #include <iostream>
+
+// windows specific
 #include <Psapi.h> 
+#include <TlHelp32.h>
 
 typedef NTSTATUS(WINAPI* pNtReadVirtualMemory)(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToRead, PULONG NumberOfBytesRead);
 typedef NTSTATUS(WINAPI* pNtWriteVirtualMemory)(HANDLE ProcessHandle, PVOID BaseAddress, PVOID Buffer, ULONG NumberOfBytesToWrite, PULONG NumberOfBytesWritten);
