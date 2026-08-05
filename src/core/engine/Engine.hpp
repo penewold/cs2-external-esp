@@ -1,6 +1,6 @@
 #pragma once
 #include "config/Config.hpp"
-#include "core/memory/Memory.hpp"
+#include "core/memory/iMemory.hpp"
 
 class Engine {
 public:

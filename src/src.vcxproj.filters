@@ -117,6 +117,9 @@
     <ClCompile Include="core\engine\classes\ObserverServices.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="core\memory\MemoryWindows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\logger\LogHelper.hpp">
@@ -404,7 +407,7 @@
     <ClInclude Include="assets\fonts\WeaponIcons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\memory\iMemory.hpp">
+    <ClInclude Include="core\memory\IMemory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

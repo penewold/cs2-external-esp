@@ -2,6 +2,7 @@
 
 #include "core/offsets/Dumper.hpp"
 #include "core/engine/cache/Cache.hpp"
+#include "core/memory/iMemory.hpp"
 
 bool Engine::Init() {
     return GetInstance().InitImpl();
@@ -66,14 +67,14 @@ void Engine::Thread() {
 }
 
 bool Engine::AwaitProcess() {
-    if (!process || process->handle_) // Process not initialized, or already attached
+    if (!process || process->IsValid()) // Process not initialized, or already attached
         return false;
 
     do {
-        if (process->AttachProcess("cs2.exe"))
+        if (process->AttachProcess("cs2"))
             break;
 
-        if (process->pid_ && !process->handle_) {
+        if (process->pid_ && !process->IsValid()) {
             LOGF(FATAL, "Insufficient permissions to open a handle to the process. Try running as Administrator.");
             return false;
         }
@@ -94,14 +95,14 @@ bool Engine::AwaitProcess() {
 }
 
 bool Engine::AwaitModules() {
-    if (!process || !process->handle_) // Process not initialized, or not attached
+    if (!process || !process->IsValid()) // Process not initialized, or not attached
         return false;
 
     LOGF(INFO, "Waiting for the game to open...");
 
     do {
-        this->client = process->GetModule("client.dll");
-        this->engine = process->GetModule("engine2.dll");
+        this->client = process->GetModule("client");
+        this->engine = process->GetModule("engine2");
 
         if (this->client.base && this->engine.base)
             break;

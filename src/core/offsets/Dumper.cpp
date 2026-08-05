@@ -106,15 +106,15 @@ bool Dumper::InitImpl() {
     return true;
 }
 
-DWORD64 Dumper::Scan(const std::string sig, ProcessModule module) {
+uintptr_t Dumper::Scan(const std::string sig, ProcessModule module) {
     auto process = Engine::GetProcess();
 
     if (!process)
         return 0;
 
-    DWORD offsets = 0;
-    DWORD64 address = 0;
-    std::vector<DWORD64> list;
+    unsigned long offsets = 0;
+    uintptr_t address = 0;
+    std::vector<uintptr_t> list;
 
     //list = process->FindSignature(module, sig.data());
     list = ScanMemory(sig, module.base, module.base + 0x4000000);
@@ -122,7 +122,7 @@ DWORD64 Dumper::Scan(const std::string sig, ProcessModule module) {
     if (!list.size())
         return 0;
 
-    if (!process->read_raw(list.at(0) + 3, &offsets, sizeof(DWORD)))
+    if (!process->read_raw(list.at(0) + 3, &offsets, sizeof(unsigned long)))
         return 0;
 
     address = list.at(0) + offsets + 7;
@@ -150,7 +150,7 @@ void Dumper::GetNextArray(std::vector<short>& next, const std::vector<WORD>& sig
         next[signature[i]] = i;
 }
 
-void Dumper::ScanBlock(byte* buffer, const std::vector<short>& next, const std::vector<WORD>& signature, DWORD64 start, DWORD size, std::vector<DWORD64>& result)
+void Dumper::ScanBlock(byte* buffer, const std::vector<short>& next, const std::vector<WORD>& signature, uintptr_t start, size_t size, std::vector<uintptr_t>& result)
 {
     auto process = Engine::GetProcess();
 
@@ -179,9 +179,9 @@ void Dumper::ScanBlock(byte* buffer, const std::vector<short>& next, const std::
     }
 }
 
-std::vector<DWORD64> Dumper::ScanMemory(const std::string& sig, DWORD64 start, DWORD64 end, int number)
+std::vector<uintptr_t> Dumper::ScanMemory(const std::string& sig, uintptr_t start, uintptr_t end, int number)
 {
-    std::vector<DWORD64> result;
+    std::vector<uintptr_t> result;
     std::vector<short> next(260, -1);
 
     auto process = Engine::GetProcess();
@@ -197,30 +197,27 @@ std::vector<DWORD64> Dumper::ScanMemory(const std::string& sig, DWORD64 start, D
 
     GetNextArray(next, signature);
 
-    MEMORY_BASIC_INFORMATION mbi;
-    while (VirtualQueryEx(process->handle_, reinterpret_cast<LPCVOID>(start), &mbi, sizeof(mbi)) != 0)
-    {
+    std::vector<MemoryRegion> regions = process->GetMemoryRegions({start, start + end}); // implement this in actual looop!!
+    for (const auto& region : regions) {
         int searches = 0;
-        auto size = mbi.RegionSize;
+        auto size = region.size;
 
         while (size >= MAX_BLOCK_SIZE)
         {
             if (result.size() >= number) {
                 delete[] buffer;
-	            return result;
+                return result;
             }
 
-            ScanBlock(buffer, next, signature, start + (MAX_BLOCK_SIZE * searches), MAX_BLOCK_SIZE, result);
+            ScanBlock(buffer, next, signature, region.start + (MAX_BLOCK_SIZE * searches), MAX_BLOCK_SIZE, result);
 
             size -= MAX_BLOCK_SIZE;
             searches++;
         }
 
-        ScanBlock(buffer, next, signature, start + (MAX_BLOCK_SIZE * searches), size, result);
+        ScanBlock(buffer, next, signature, region.start + (MAX_BLOCK_SIZE * searches), size, result);
 
-        start += mbi.RegionSize;
-
-        if (result.size() >= number || end != 0 && start > end)
+        if (result.size() >= number)
             break;
     }
 

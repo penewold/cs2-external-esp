@@ -7,6 +7,13 @@
 #include <string>
 #include <iostream>
 
+struct MemoryRegion
+{
+	uintptr_t start;
+	uintptr_t end;
+	size_t size;
+};
+
 struct ProcessModule
 {
 	uintptr_t base, size;
@@ -19,13 +26,15 @@ public:
 	ProcessModule base_client_;
 
 public:
-	virtual bool AttachProcess(const char* process_name) = 0;
-	virtual void Close() = 0;
+	bool AttachProcess(std::string process_name);
+	void Close();
 
 public:
-	virtual ProcessModule GetModule(const char* module_name) = 0;
-	//virtual LPVOID		  Allocate(size_t size_in_bytes) = 0;  implement with pTrace + mmap later? or delete
-	virtual bool          read_raw(uintptr_t address, void* buffer, size_t size) = 0;
+	ProcessModule             GetModule(std::string module_name);
+	//LPVOID		          Allocate(size_t size_in_bytes);  implement with pTrace + mmap later? or delete
+	bool                      read_raw(uintptr_t address, void* buffer, size_t size);
+	std::vector<MemoryRegion> GetMemoryRegions(ProcessModule module);
+	bool                      IsValid();
 
 	template<class T>
 	void write(uintptr_t address, T value)
@@ -38,7 +47,7 @@ public:
 	{
 		T buffer{};
 
-		this->read_impl(address, buffer, sizeof(T));
+		this->read_impl(address, &buffer, sizeof(T));
 		return buffer;
 	}
 
@@ -146,10 +155,10 @@ public:
 	}
 
 private:
-	virtual uint32_t FindProcessIdByProcessName(const char* process_name) = 0;
-	virtual uint32_t FindProcessIdByWindowName(const char* window_name) = 0;
+	uint32_t FindProcessIdByProcessName(const char* process_name);
+	uint32_t FindProcessIdByWindowName(const char* window_name);
 	//HWND GetWindowHandleFromProcessId(DWORD ProcessId);
-	virtual size_t read_impl(uintptr_t address, void* buffer, size_t size) = 0;
-	virtual void write_impl(uintptr_t address, const void* value, size_t size) = 0;
+	size_t read_impl(uintptr_t address, void* buffer, size_t size);
+	size_t write_impl(uintptr_t address, const void* value, size_t size);
 };
 #endif
